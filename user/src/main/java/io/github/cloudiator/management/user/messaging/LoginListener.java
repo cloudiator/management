@@ -1,5 +1,7 @@
 package io.github.cloudiator.management.user.messaging;
 
+import io.github.cloudiator.management.user.converter.LoginConverter;
+import io.github.cloudiator.management.user.domain.User;
 import javax.inject.Inject;
 import org.cloudiator.messages.General.Error;
 import org.cloudiator.messages.entities.User.LoginRequest;
@@ -10,6 +12,7 @@ import org.cloudiator.messaging.MessageInterface;
 public class LoginListener implements Runnable {
 
   private final MessageInterface messagingInterface;
+  private final LoginConverter loginConverter = new LoginConverter();
 
   @Inject
   public LoginListener(MessageInterface messagingInterface) {
@@ -27,9 +30,11 @@ public class LoginListener implements Runnable {
             LoginResponse.Builder responseBuilder = LoginResponse.newBuilder();
 
             //convert to domain object
+            User userRequested = loginConverter.applyBack(content.getLogin());
 
+            //validate to database
 
-            //store to database
+            //create Token
 
             //reply
 

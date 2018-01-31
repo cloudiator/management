@@ -1,6 +1,7 @@
 package io.github.cloudiator.management.user.messaging;
 
 import io.github.cloudiator.management.user.converter.TenantConverter;
+import io.github.cloudiator.management.user.domain.Tenant;
 import javax.inject.Inject;
 import org.cloudiator.messages.General.Error;
 import org.cloudiator.messages.entities.User.CreateTenantRequest;
@@ -11,12 +12,11 @@ import org.cloudiator.messaging.MessageInterface;
 public class CreateTenantListener implements Runnable {
 
   private final MessageInterface messagingInterface;
-  private final TenantConverter tenantConverter;
+  private final TenantConverter tenantConverter = new TenantConverter();
 
   @Inject
   public CreateTenantListener(MessageInterface messagingInterface) {
     this.messagingInterface = messagingInterface;
-    this.tenantConverter = new TenantConverter();
   }
 
   @Override
@@ -27,18 +27,20 @@ public class CreateTenantListener implements Runnable {
           @Override
           public void accept(String id, CreateTenantRequest content) {
 
-            CreateTenantResponse response = CreateTenantResponse.newBuilder().build();
+            CreateTenantResponse.Builder responseBuilder = CreateTenantResponse.newBuilder();
 
             //convert to domain object
+            Tenant domainTenant = tenantConverter.applyBack(content.getTenant());
 
             //store to database
 
             //reply
 
+            responseBuilder.setTenant(tenantConverter.apply(domainTenant));
             System.out.println("#### RECEIVED MESSAGE #### " + content.toString());
 
             //success
-            messagingInterface.reply(id, response);
+            messagingInterface.reply(id, responseBuilder.build());
 
             //error
             messagingInterface.reply(CreateTenantResponse.class, id, Error.newBuilder().build());
