@@ -25,8 +25,17 @@
       <artifactId>common-persistence</artifactId>
     </dependency>
     <dependency>
+      <groupId>io.github.cloudiator.common</groupId>
+      <artifactId>common-util</artifactId>
+    </dependency>
+    <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.inject.extensions</groupId>
+      <artifactId>guice-persist</artifactId>
+      <version>${guice.version}</version>
     </dependency>
   </dependencies>
 

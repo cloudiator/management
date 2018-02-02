@@ -2,7 +2,9 @@ package io.github.cloudiator.management.user;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import de.uniulm.omi.cloudiator.persistance.JpaContext;
 import de.uniulm.omi.cloudiator.util.configuration.Configuration;
+import io.github.cloudiator.management.user.config.JpaModule;
 import io.github.cloudiator.management.user.config.UserManagementModule;
 import io.github.cloudiator.management.user.messaging.AuthListener;
 import io.github.cloudiator.management.user.messaging.CreateTenantListener;
@@ -15,7 +17,9 @@ public class UserManagementAgent {
 
   private final static Injector injector = Guice
       .createInjector(new UserManagementModule(), new KafkaMessagingModule(
-          new KafkaContext(Configuration.conf())));
+              new KafkaContext(Configuration.conf())),
+          new JpaModule("defaultPersistenceUnit", new JpaContext(
+              Configuration.conf())));
 
   public static void main(String[] args) {
 
