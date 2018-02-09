@@ -20,6 +20,9 @@ public class UserDomainRepository {
   public void addUser(User user) {
     checkNotNull(user, "user is null");
     checkState(!exists(user.getEmail()), "mail already exists.");
+    String salt = "";
+    UserModel newUser = new UserModel(user.getEmail(),user.getPassword(),salt,user.getTenant().getName());
+    userModelRepository.save(newUser);
 
 
 

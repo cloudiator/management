@@ -23,10 +23,14 @@ public class UserManagementAgent {
 
   public static void main(String[] args) {
 
-    injector.getInstance(CreateUserListener.class).run();
-    injector.getInstance(CreateTenantListener.class).run();
-    injector.getInstance(AuthListener.class).run();
-    injector.getInstance(LoginListener.class).run();
+    final CreateUserListener userListener = injector.getInstance(CreateUserListener.class);
+    userListener.run();
+    final CreateTenantListener tenantListener = injector.getInstance(CreateTenantListener.class);
+    tenantListener.run();
+    final AuthListener authListener = injector.getInstance(AuthListener.class);
+    authListener.run();
+    final LoginListener loginListener = injector.getInstance(LoginListener.class);
+    loginListener.run();
 
   }
 

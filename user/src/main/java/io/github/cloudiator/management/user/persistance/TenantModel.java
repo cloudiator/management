@@ -10,4 +10,5 @@ public class TenantModel extends Model {
   @Column(nullable = false, unique = true)
   String name;
 
+
 }

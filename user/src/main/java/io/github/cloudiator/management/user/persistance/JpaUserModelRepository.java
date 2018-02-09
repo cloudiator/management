@@ -1,5 +1,8 @@
 package io.github.cloudiator.management.user.persistance;
 
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
@@ -25,5 +28,11 @@ public class JpaUserModelRepository extends BaseModelRepositoryJpa<UserModel> im
     final UserModel userModel = (UserModel) JpaResultHelper
         .getSingleResultOrNull(em().createQuery(query).setParameter("mail", mail));
     return Optional.ofNullable(userModel);
+  }
+
+
+  @Override
+  public void setUserTenant(String email, String tenant) {
+
   }
 }
