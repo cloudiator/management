@@ -2,10 +2,10 @@ package io.github.cloudiator.management.user;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import de.uniulm.omi.cloudiator.persistance.JpaContext;
 import de.uniulm.omi.cloudiator.util.configuration.Configuration;
 import io.github.cloudiator.management.user.config.JpaModule;
 import io.github.cloudiator.management.user.config.UserManagementModule;
+import io.github.cloudiator.util.JpaContext;
 import io.github.cloudiator.management.user.messaging.AuthListener;
 import io.github.cloudiator.management.user.messaging.CreateTenantListener;
 import io.github.cloudiator.management.user.messaging.CreateUserListener;
@@ -21,6 +21,7 @@ public class UserManagementAgent {
           new JpaModule("defaultPersistenceUnit", new JpaContext(
               Configuration.conf())));
 
+
   public static void main(String[] args) {
 
     final CreateUserListener userListener = injector.getInstance(CreateUserListener.class);
@@ -31,6 +32,7 @@ public class UserManagementAgent {
     authListener.run();
     final LoginListener loginListener = injector.getInstance(LoginListener.class);
     loginListener.run();
+
 
   }
 

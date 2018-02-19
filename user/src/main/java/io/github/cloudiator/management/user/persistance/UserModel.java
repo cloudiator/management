@@ -1,13 +1,15 @@
 package io.github.cloudiator.management.user.persistance;
 
-import de.uniulm.omi.cloudiator.persistance.entities.Model;
+
+
+import io.github.cloudiator.persistance.*;
 import de.uniulm.omi.cloudiator.util.Password;
+import io.github.cloudiator.management.user.domain.Tenant;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @Entity
-
 class UserModel extends Model {
 
   @Column(unique = true, nullable = false)
@@ -33,16 +35,24 @@ class UserModel extends Model {
     this.tenant = tenant;
   }
 
-  public String getMail(){
+  String getMail() {
     return mail;
   }
 
-  public String getTenant(){
+  String getTenant() {
     return tenant;
   }
 
-  public void setTenant(String newTenant){
-    this.tenant=newTenant;
+  String getPassword() {
+    return password;
+  }
+
+  String getSalt() {
+    return salt;
+  }
+
+  void setTenant(String newTenant) {
+    this.tenant = newTenant;
   }
 
 }

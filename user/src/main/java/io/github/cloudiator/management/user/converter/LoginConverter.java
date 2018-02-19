@@ -14,11 +14,8 @@ public class LoginConverter implements TwoWayConverter<User, Login> {
 
   @Override
   public User applyBack(Login protologin) {
-    User user = new User();
-    user.setEmail(protologin.getEmail());
-    user.setPassword(protologin.getPassword());
-    user.setTenant(tenantConverter.applyBack(protologin.getTenant()));
-
+    User user = new User(protologin.getEmail(), protologin.getPassword(), "salt",
+        tenantConverter.applyBack(protologin.getTenant()));
     return user;
   }
 
