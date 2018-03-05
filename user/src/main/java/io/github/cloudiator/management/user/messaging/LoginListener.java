@@ -4,10 +4,13 @@ import com.google.inject.Provider;
 import com.google.inject.persist.UnitOfWork;
 import de.uniulm.omi.cloudiator.util.Password;
 import io.github.cloudiator.management.user.converter.LoginConverter;
+import io.github.cloudiator.management.user.converter.TokenConverter;
+import io.github.cloudiator.management.user.converter.UserConverter;
 import io.github.cloudiator.management.user.domain.AuthService;
 import io.github.cloudiator.management.user.domain.Token;
 import io.github.cloudiator.management.user.domain.User;
-import io.github.cloudiator.management.user.persistance.UserDomainRepository;
+import io.github.cloudiator.persistance.UserDomainRepository;
+import java.util.Base64;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import org.cloudiator.messages.General.Error;
@@ -25,6 +28,8 @@ public class LoginListener implements Runnable {
   private final Provider<EntityManager> entityManager;
   private final Password passwordUtil;
   private AuthService authService;
+  private final TokenConverter tokenConverter;
+  private final UserConverter userConverter;
 
   @Inject
   public LoginListener(MessageInterface messagingInterface,
@@ -36,6 +41,8 @@ public class LoginListener implements Runnable {
     this.entityManager = entityManager;
     this.passwordUtil = Password.getInstance();
     this.authService = authService;
+    this.tokenConverter = new TokenConverter();
+    this.userConverter = new UserConverter();
   }
 
   @Override
@@ -49,30 +56,49 @@ public class LoginListener implements Runnable {
             unitOfWork.begin();
             entityManager.get().getTransaction().begin();
 
-            LoginResponse.Builder responseBuilder = LoginResponse.newBuilder();
+
 
             //convert to domain object
             User contentUser = loginConverter.applyBack(content.getLogin());
             System.out.println("#### RECEIVED MESSAGE #### " + content.toString());
+            System.out.println("User: " + contentUser);
 
             try {
+              LoginResponse.Builder responseBuilder = LoginResponse.newBuilder();
 
               //validate to database
               User databaseUser = userDomainRepository.findUserByMail(contentUser.getEmail());
-              if (!passwordUtil.check(contentUser.getPassword().toCharArray(),
-                  databaseUser.getPassword().toCharArray(), databaseUser.getSalt().getBytes())) {
+              System.out.println(
+                  "DB: " + databaseUser.toString() + " pw: " + databaseUser.getPassword() + " salt "
+                      + databaseUser.getSalt());
+
+              byte[] salt = Base64.getDecoder().decode(databaseUser.getSalt());
+
+              boolean erg;
+              erg = passwordUtil.check(contentUser.getPassword().toCharArray(),
+                  databaseUser.getPassword().toCharArray(), salt);
+              System.out.println("Password: " + erg);
+              if (!erg) {
+                System.out.println(
+                    "passwordError: " + databaseUser + "content: " + contentUser.getPassword());
                 messagingInterface
                     .reply(LoginResponse.class, id,
-                        Error.newBuilder().setCode(400).setMessage("Password does not match.")
+                        Error.newBuilder().setCode(400)
+                            .setMessage(
+                                "Password does not match. " + contentUser.getPassword() + "db: "
+                                    + databaseUser.getPassword())
                             .build());
                 entityManager.get().getTransaction().rollback();
-                return;
+                //return;
               }
 
               //create Token
-              Token yourToken = authService.createNewToken(databaseUser.getEmail());
-              //reply
-
+              Token newToken = authService.createNewToken(databaseUser);
+              System.out.println("\n " + newToken);
+              //creating reply
+              responseBuilder
+                  .setToken(tokenConverter.apply(newToken))
+                  .setUser(userConverter.apply(databaseUser));
               //success
               messagingInterface.reply(id, responseBuilder.build());
               entityManager.get().getTransaction().commit();

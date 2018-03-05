@@ -1,11 +1,8 @@
-package io.github.cloudiator.management.user.persistance;
+package io.github.cloudiator.persistance;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
-
-import de.uniulm.omi.cloudiator.persistance.entities.deprecated.Model;
-import io.github.cloudiator.persistance.BaseModelRepositoryJpa;
 import io.github.cloudiator.util.JpaResultHelper;
 import java.util.Optional;
 import javax.persistence.EntityManager;

@@ -4,6 +4,7 @@ public class Tenant {
 
   private final String name;
 
+
   public Tenant(String name) {
     this.name = name;
   }

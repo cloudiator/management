@@ -2,17 +2,20 @@ package io.github.cloudiator.management.user.messaging;
 
 import com.google.inject.Provider;
 import com.google.inject.persist.UnitOfWork;
+import de.uniulm.omi.cloudiator.util.Password;
 import io.github.cloudiator.management.user.converter.UserConverter;
 import io.github.cloudiator.management.user.converter.UserNewConverter;
 import io.github.cloudiator.management.user.domain.User;
 import io.github.cloudiator.management.user.domain.UserNew;
-import io.github.cloudiator.management.user.persistance.TenantDomainRepository;
-import io.github.cloudiator.management.user.persistance.UserDomainRepository;
+import io.github.cloudiator.persistance.TenantDomainRepository;
+import io.github.cloudiator.persistance.UserDomainRepository;
+import java.util.Base64;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import org.cloudiator.messages.General.Error;
 import org.cloudiator.messages.entities.User.CreateUserRequest;
 import org.cloudiator.messages.entities.User.CreateUserResponse;
+import org.cloudiator.messages.entities.User.CreateUserResponse.Builder;
 import org.cloudiator.messaging.MessageCallback;
 import org.cloudiator.messaging.MessageInterface;
 
@@ -53,9 +56,9 @@ public class CreateUserListener implements Runnable {
 
             System.out.println("#### RECEIVED MESSAGE #### " + content.toString());
 
-            CreateUserResponse.Builder responseBuilder = CreateUserResponse.newBuilder();
+            Builder responseBuilder = CreateUserResponse.newBuilder();
             UserNew requestedUser = userNewConverter.applyBack(content.getNewUser());
-
+            /*--- not here anymore
             //ERROR: PasswordMismatch
             if (!requestedUser.getPasswordRepeat().matches(requestedUser.getPassword())) {
               messagingInterface
@@ -65,16 +68,16 @@ public class CreateUserListener implements Runnable {
               entityManager.get().getTransaction().rollback();
               return;
             }
-
+            */
             try {
-              //convert to domain object
 
-              User domainUser = new User(requestedUser.getEmail(), requestedUser.getPassword(),
-                  "newSalt",
-                  requestedUser.getTenant());
+              //setUp new User
+              byte[] salt = Password.getInstance().generateSalt();
+              String encodedSalt = Base64.getEncoder().encodeToString(salt);
+              String hashed =new String(Password.getInstance().hash(requestedUser.getPassword().toCharArray(), salt));
 
-              //Check Tenant is exitsting
-              tenantDomainRepository.exists(domainUser.getTenant().getName());
+              User domainUser = new User(requestedUser.getEmail(), hashed,
+                  encodedSalt, requestedUser.getTenant());
 
               //store to database
               userDomainRepository.addUser(domainUser);

@@ -1,7 +1,7 @@
-package io.github.cloudiator.management.user.persistance;
+package io.github.cloudiator.persistance;
 
-import de.uniulm.omi.cloudiator.persistance.repositories.ModelRepository;
 import java.util.Optional;
+
 
 public interface TenantModelRepository extends ModelRepository<TenantModel> {
 

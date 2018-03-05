@@ -2,10 +2,10 @@ package io.github.cloudiator.management.user.config;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.persist.jpa.JpaPersistModule;
-import io.github.cloudiator.management.user.persistance.JpaTenantModelRepository;
-import io.github.cloudiator.management.user.persistance.JpaUserModelRepository;
-import io.github.cloudiator.management.user.persistance.TenantModelRepository;
-import io.github.cloudiator.management.user.persistance.UserModelRepository;
+import io.github.cloudiator.persistance.JpaTenantModelRepository;
+import io.github.cloudiator.persistance.JpaUserModelRepository;
+import io.github.cloudiator.persistance.TenantModelRepository;
+import io.github.cloudiator.persistance.UserModelRepository;
 import io.github.cloudiator.util.JpaContext;
 import java.util.HashMap;
 import java.util.Map;

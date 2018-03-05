@@ -1,33 +1,35 @@
-package io.github.cloudiator.management.user.persistance;
+package io.github.cloudiator.persistance;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import com.google.common.base.Optional;
 import com.google.inject.Inject;
 import de.uniulm.omi.cloudiator.util.Password;
 import io.github.cloudiator.management.user.domain.Tenant;
 import io.github.cloudiator.management.user.domain.User;
-import javassist.bytecode.ByteArray;
+import io.github.cloudiator.management.user.domain.UserNew;
 
 public class UserDomainRepository {
 
   private final UserModelRepository userModelRepository;
+  private final TenantModelRepository tenantModelRepository;
   private final Password passwordUtil;
 
   @Inject
   public UserDomainRepository(
-      UserModelRepository userModelRepository) {
+      UserModelRepository userModelRepository, TenantModelRepository tenantModelRepository) {
     this.userModelRepository = userModelRepository;
+    this.tenantModelRepository = tenantModelRepository;
     passwordUtil = Password.getInstance();
   }
 
   public User findUserByMail(String mail) {
-    checkState(!exists(mail), "Email does not exist.");
+    checkState(exists(mail), "Email does not exist. " + mail);
     UserModel databaseUser = userModelRepository.findUserByMail(mail).get();
-    Tenant userTenant = new Tenant(databaseUser.getTenant());
+    Tenant userTenant = new Tenant(databaseUser.getTenant().getName());
     User dbBack = new User(databaseUser.getMail(), databaseUser.getPassword(),
         databaseUser.getSalt(), userTenant);
+    System.out.println("got it: " + dbBack);
     return dbBack;
   }
 
@@ -35,17 +37,27 @@ public class UserDomainRepository {
   public void addUser(User user) {
     checkNotNull(user, "user is null");
     checkState(!exists(user.getEmail()), "mail already exists.");
-    String salt = passwordUtil.generateSalt().toString();
-    String hashed = passwordUtil.hash(user.getPassword().toCharArray(), salt.getBytes()).toString();
+    TenantModel userTenant;
+    if (tenantModelRepository.findTenantByName(user.getTenant().getName()).isPresent()) {
+      userTenant = tenantModelRepository.findTenantByName(user.getTenant().getName())
+          .get();
+    } else {
+      userTenant = new TenantModel(user.getTenant().getName());
+      tenantModelRepository.save(userTenant);
+    }
+    UserModel userModel = new UserModel(user.getEmail(), user.getSalt(), user.getPassword(),
+        userTenant);
 
-    UserModel newUser = new UserModel(user.getEmail(), salt, hashed,
-        user.getTenant().getName());
-    userModelRepository.save(newUser);
+    userModelRepository.save(userModel);
   }
 
   public boolean exists(String mail) {
     checkNotNull(mail, "mail is null");
     return userModelRepository.findUserByMail(mail).isPresent();
+  }
+
+  public void setUserTenant(String email, String tenant) {
+
   }
 
 
