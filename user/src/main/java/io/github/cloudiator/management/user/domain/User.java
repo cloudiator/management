@@ -4,20 +4,19 @@ public class User {
 
   private String email;
   private String password;
+  private String salt;
   private Tenant tenant;
 
 
-  public User(String email, String password, Tenant tenant) {
+  public User(String email, String password, String salt, Tenant tenant) {
 
     this.email = email;
     this.password = password;
+    this.salt = salt;
     this.tenant = tenant;
   }
 
-  public User() {
-    this.email = null;
-    this.password = null;
-    this.tenant = null;
+  protected User() {
   }
 
   public String getEmail() {
@@ -34,6 +33,10 @@ public class User {
 
   public void setPassword(String password) {
     this.password = password;
+  }
+
+  public String getSalt() {
+    return salt;
   }
 
   public Tenant getTenant() {

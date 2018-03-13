@@ -8,14 +8,18 @@ public class TokenConverter implements TwoWayConverter<Token, UserEntities.Token
 
   @Override
   public Token applyBack(UserEntities.Token protoToken) {
-    Token token = new Token(protoToken.getToken());
+    Token token = new Token(protoToken.getToken(), protoToken.getUserEmail(),
+        protoToken.getGenerationTime(), protoToken.getExpireTime());
     return token;
   }
 
   @Override
   public UserEntities.Token apply(Token domainToken) {
     UserEntities.Token.Builder builder = UserEntities.Token.newBuilder()
-        .setToken(domainToken.getToken());
+        .setToken(domainToken.getStingToken())
+        .setUserEmail(domainToken.getOwner())
+        .setGenerationTime(domainToken.getIssuedAt())
+        .setExpireTime(domainToken.getExpires());
     return builder.build();
   }
 }

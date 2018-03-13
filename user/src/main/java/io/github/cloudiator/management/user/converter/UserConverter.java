@@ -14,11 +14,8 @@ public class UserConverter implements TwoWayConverter<User, UserEntities.User> {
 
   @Override
   public User applyBack(UserEntities.User protoUser) {
-    User user = new User();
-    user.setEmail(protoUser.getEmail());
-    user.setTenant(tenantConverter.applyBack(protoUser.getTenant()));
-
-    //user.setPassword("loged_in");
+    User user = new User(protoUser.getEmail(), "password", "salt",
+        tenantConverter.applyBack(protoUser.getTenant()));
 
     return user;
   }
