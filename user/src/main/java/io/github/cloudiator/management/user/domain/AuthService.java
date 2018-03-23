@@ -1,6 +1,7 @@
 package io.github.cloudiator.management.user.domain;
 
 import de.uniulm.omi.cloudiator.util.Password;
+import de.uniulm.omi.cloudiator.util.configuration.Configuration;
 import io.github.cloudiator.management.user.converter.TokenConverter;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
@@ -19,6 +20,13 @@ public class AuthService {
   private long ttlMillis = 604800000; // 7 days
 
   public AuthService() {
+
+    final String validToken = Configuration.conf().getString("auth.mode");
+    System.out.println("\n aha \n" + validToken + "\n aha \n");
+    if (validToken.matches("normal")) {
+      System.out.println("\n TOKEN: " + Configuration.conf().getString("auth.token") + "\n");
+    }
+
     // HashMap with StringToken as Key and Pair<User,Token> as value
     this.tokenTable = new HashMap<String, Entry<User, Token>>();
     User userforTest = new User("admin", "password", "salt", new Tenant("admin"));
