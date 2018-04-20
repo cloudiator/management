@@ -6,6 +6,7 @@ import de.uniulm.omi.cloudiator.util.configuration.Configuration;
 import io.github.cloudiator.management.user.config.JpaModule;
 import io.github.cloudiator.management.user.config.UserManagementModule;
 import io.github.cloudiator.management.user.domain.AuthService;
+import io.github.cloudiator.persistance.UserDomainRepository;
 import io.github.cloudiator.util.JpaContext;
 import io.github.cloudiator.management.user.messaging.AuthListener;
 import io.github.cloudiator.management.user.messaging.CreateTenantListener;
