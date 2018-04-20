@@ -63,10 +63,16 @@ public class AuthService {
 
       }
       userfortest = this.userDomainRepository.findUserByMail("testuser");
-      System.out
-          .println("TestUser: "
-              + "\nEmail: " + userfortest.getEmail()
-              + "\nPw: passwordfortestuser " + "\nTenant: " + userfortest.getTenant().getName());
+      System.out.println("TestUser: " + "\nEmail: " + userfortest.getEmail());
+
+      if (Password.getInstance().check(new String("passwordfortestuser").toCharArray(),
+          userfortest.getPassword().toCharArray(),
+          Base64.getDecoder().decode(userfortest.getSalt()))) {
+        System.out.println("Pw: passwordfortestuser ");
+      } else {
+        System.out.println("Standardpassword changed");
+      }
+      System.out.println("Tenant: " + userfortest.getTenant().getName());
       final String authToken = Configuration.conf().getString("auth.token");
       Token tokenfortest = new Token(authToken, "testuser", System.currentTimeMillis(),
           System.currentTimeMillis() + ttlMillis);
