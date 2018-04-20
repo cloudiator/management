@@ -8,6 +8,7 @@ import de.uniulm.omi.cloudiator.util.Password;
 import io.github.cloudiator.management.user.domain.Tenant;
 import io.github.cloudiator.management.user.domain.User;
 import io.github.cloudiator.management.user.domain.UserNew;
+import java.util.Optional;
 
 public class UserDomainRepository {
 
@@ -29,7 +30,7 @@ public class UserDomainRepository {
     Tenant userTenant = new Tenant(databaseUser.getTenant().getName());
     User dbBack = new User(databaseUser.getMail(), databaseUser.getPassword(),
         databaseUser.getSalt(), userTenant);
-    System.out.println("got it: " + dbBack);
+    //System.out.println("got it: " + dbBack);
     return dbBack;
   }
 
@@ -57,6 +58,14 @@ public class UserDomainRepository {
   }
 
   public void setUserTenant(String email, String tenant) {
+
+  }
+
+  public void deleteUser(User user) {
+    checkNotNull(user, "user is null");
+    checkState(exists(user.getEmail()), "user does not exists.");
+    UserModel candidate = userModelRepository.findUserByMail(user.getEmail()).get();
+    userModelRepository.delete(candidate);
 
   }
 
