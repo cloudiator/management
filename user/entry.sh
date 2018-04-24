@@ -35,11 +35,19 @@ validateMandatory() {
   fi
 
   if [ -z "$JPA_DATABASE" ]; then
-	  env_required "JPA_HOST"
+	  env_required "JPA_DATABASE"
   fi
 
   if [ -z "$KAFKA_BOOTSTRAP_SERVERS" ]; then
 	  env_required "KAFKA_BOOTSTRAP_SERVERS"
+  fi
+
+  if [ -z "$AUTH_MODE" ]; then
+	  env_required "AUTH_MODE"
+  fi
+
+  if [ -z "$AUTH_TOKEN" ]; then
+	  env_required "AUTH_TOKEN"
   fi
 
 }
@@ -72,4 +80,4 @@ setDefaults
 buildJpaUrl
 
 # Run the service
-java -Djpa.url=${JPA_URL} -Djpa.user=${JPA_USER} -Djpa.password=${JPA_PASSWORD} -Djpa.dialect=${JPA_DIALECT} -Djpa.driver=${JPA_DRIVER} -Dkafka.groupId=${KAFKA_GROUP_ID} -Dkafka.responseTimeout=${KAFKA_RESPONSE_TIMEOUT} -Dkafka.bootstrapServers=${KAFKA_BOOTSTRAP_SERVERS} -jar user-agent.jar
+java -Djpa.url=${JPA_URL} -Djpa.user=${JPA_USER} -Djpa.password=${JPA_PASSWORD} -Djpa.dialect=${JPA_DIALECT} -Djpa.driver=${JPA_DRIVER} -Dkafka.groupId=${KAFKA_GROUP_ID} -Dkafka.responseTimeout=${KAFKA_RESPONSE_TIMEOUT} -Dkafka.bootstrapServers=${KAFKA_BOOTSTRAP_SERVERS} -Dauth.mode=${AUTH_MODE} -Dauth.token=${AUTH_TOKEN} -jar user-agent.jar

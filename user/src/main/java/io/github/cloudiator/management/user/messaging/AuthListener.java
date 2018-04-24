@@ -60,7 +60,7 @@ public class AuthListener implements Runnable {
             // Token not in Table
             if (tableEntry.getKey() == null) {
               messagingInterface.reply(AuthResponse.class, id,
-                  Error.newBuilder().setMessage("Token not listed").build());
+                  Error.newBuilder().setMessage("invalid Token: ").build());
               entityManager.get().getTransaction().rollback();
               unitOfWork.end();
               return;

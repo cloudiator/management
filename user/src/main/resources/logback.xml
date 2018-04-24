@@ -31,7 +31,7 @@
   <logger level="DEBUG" name="io.github.cloudiator.management.user"/>
   <logger level="DEBUG" name="org.cloudiator.messaging"/>
 
-  <root level="DEBUG">
+  <root level="WARN">
     <appender-ref ref="STDOUT"/>
   </root>
 
