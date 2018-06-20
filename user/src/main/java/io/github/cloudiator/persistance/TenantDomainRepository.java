@@ -5,6 +5,8 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.inject.Inject;
 import io.github.cloudiator.management.user.domain.Tenant;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TenantDomainRepository {
 
@@ -33,6 +35,14 @@ public class TenantDomainRepository {
   public boolean exists(String name) {
     checkNotNull(name, "Tenant is null");
     return tenantModelRepository.findTenantByName(name).isPresent();
+  }
+
+  public List<Tenant> findAllTenants() {
+    List<Tenant> allTenants = new ArrayList<Tenant>();
+    for (TenantModel tenantModel : tenantModelRepository.findAll()) {
+      allTenants.add(new Tenant(tenantModel.getName()));
+    }
+    return allTenants;
   }
 
 
