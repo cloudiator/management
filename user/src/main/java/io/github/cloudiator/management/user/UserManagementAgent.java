@@ -6,6 +6,7 @@ import de.uniulm.omi.cloudiator.util.configuration.Configuration;
 import io.github.cloudiator.management.user.config.JpaModule;
 import io.github.cloudiator.management.user.config.UserManagementModule;
 import io.github.cloudiator.management.user.domain.AuthService;
+import io.github.cloudiator.management.user.messaging.TenantQueryListener;
 import io.github.cloudiator.persistance.UserDomainRepository;
 import io.github.cloudiator.util.JpaContext;
 import io.github.cloudiator.management.user.messaging.AuthListener;
@@ -36,6 +37,8 @@ public class UserManagementAgent {
     authListener.run();
     final LoginListener loginListener = injector.getInstance(LoginListener.class);
     loginListener.run();
+    final TenantQueryListener tenantQueryListener = injector.getInstance(TenantQueryListener.class);
+    tenantQueryListener.run();
 
 
   }

@@ -21,6 +21,7 @@ public class AuthService {
   private boolean initialized = false;
 
 
+
   private final UserDomainRepository userDomainRepository;
 
   private long ttlMillis = 604800000; // 7 days

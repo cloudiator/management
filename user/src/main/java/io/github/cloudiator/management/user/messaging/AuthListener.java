@@ -2,6 +2,7 @@ package io.github.cloudiator.management.user.messaging;
 
 import com.google.inject.Provider;
 import com.google.inject.persist.UnitOfWork;
+import de.uniulm.omi.cloudiator.util.configuration.Configuration;
 import io.github.cloudiator.management.user.converter.TokenConverter;
 import io.github.cloudiator.management.user.converter.UserConverter;
 import io.github.cloudiator.management.user.domain.AuthService;
@@ -59,27 +60,33 @@ public class AuthListener implements Runnable {
             Entry<User, Token> tableEntry = authService.getToken(contentToken);
             // Token not in Table
             if (tableEntry.getKey() == null) {
+              /* Error return ...must be better
               messagingInterface.reply(AuthResponse.class, id,
                   Error.newBuilder().setMessage("invalid Token: ").build());
-              entityManager.get().getTransaction().rollback();
-              unitOfWork.end();
-              return;
+              */
+              UserEntities.User invalidUser = UserEntities.User.newBuilder().setEmail("notauser")
+                  .clearTenant().build();
+              response.setUser(invalidUser);
+
+            } else {
+              //check Token:
+              Long now = System.currentTimeMillis();
+              // Token is expired
+              if (!Configuration.conf().getString("auth.mode").matches("testmode")) {
+                if (tableEntry.getValue().getExpires() <= now) {
+                  //error
+                  messagingInterface.reply(AuthResponse.class, id,
+                      Error.newBuilder().setMessage("Token expired").build());
+                  entityManager.get().getTransaction().rollback();
+                  unitOfWork.end();
+                  return;
+                }
+              }
+              //create reply
+              UserEntities.User feedback = userConverter.apply(tableEntry.getKey());
+              response.setUser(feedback);
+              //success
             }
-            //check Token:
-            Long now = System.currentTimeMillis();
-            // Token is expired
-            if (tableEntry.getValue().getExpires() <= now) {
-              //error
-              messagingInterface.reply(AuthResponse.class, id,
-                  Error.newBuilder().setMessage("Token expired").build());
-              entityManager.get().getTransaction().rollback();
-              unitOfWork.end();
-              return;
-            }
-            //create reply
-            UserEntities.User feedback = userConverter.apply(tableEntry.getKey());
-            response.setUser(feedback);
-            //success
             messagingInterface.reply(id, response.build());
             entityManager.get().getTransaction().commit();
             unitOfWork.end();
