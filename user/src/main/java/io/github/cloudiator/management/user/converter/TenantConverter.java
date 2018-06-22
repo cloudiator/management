@@ -6,6 +6,12 @@ import org.cloudiator.messages.entities.UserEntities;
 
 public class TenantConverter implements TwoWayConverter<Tenant, UserEntities.Tenant> {
 
+  public static final TenantConverter INSTANCE = new TenantConverter();
+
+  private TenantConverter() {
+
+  }
+
   @Override
   public Tenant applyBack(UserEntities.Tenant protoTenant) {
     Tenant result = new Tenant(protoTenant.getTenant());

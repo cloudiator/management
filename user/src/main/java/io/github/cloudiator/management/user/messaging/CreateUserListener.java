@@ -23,7 +23,7 @@ public class CreateUserListener implements Runnable {
 
   private final MessageInterface messagingInterface;
   private final UserNewConverter userNewConverter = new UserNewConverter();
-  private final UserConverter userConverter = new UserConverter();
+  private final UserConverter userConverter = UserConverter.INSTANCE;
   private final UserDomainRepository userDomainRepository;
   private final TenantDomainRepository tenantDomainRepository;
   private final UnitOfWork unitOfWork;
@@ -60,7 +60,7 @@ public class CreateUserListener implements Runnable {
             UserNew requestedUser = userNewConverter.applyBack(content.getNewUser());
             /*--- not here anymore
             //ERROR: PasswordMismatch
-            if (!requestedUser.getPasswordRepeat().matches(requestedUser.getPassword())) {
+            if (!requestedUser.getPasswordRepeat().matches(requestedUser.password())) {
               messagingInterface
                   .reply(CreateUserResponse.class, id,
                       Error.newBuilder().setCode(400).setMessage("PasswordRepeat does not match.")
@@ -74,7 +74,8 @@ public class CreateUserListener implements Runnable {
               //setUp new User
               byte[] salt = Password.getInstance().generateSalt();
               String encodedSalt = Base64.getEncoder().encodeToString(salt);
-              String hashed =new String(Password.getInstance().hash(requestedUser.getPassword().toCharArray(), salt));
+              String hashed = new String(
+                  Password.getInstance().hash(requestedUser.getPassword().toCharArray(), salt));
 
               User domainUser = new User(requestedUser.getEmail(), hashed,
                   encodedSalt, requestedUser.getTenant());

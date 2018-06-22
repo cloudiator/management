@@ -1,14 +1,10 @@
 package io.github.cloudiator.management.user.messaging;
 
 import com.google.inject.Provider;
-import com.google.inject.internal.ErrorsException;
 import com.google.inject.persist.UnitOfWork;
 import io.github.cloudiator.management.user.converter.TenantConverter;
-import io.github.cloudiator.management.user.converter.UserConverter;
-import io.github.cloudiator.management.user.converter.UserNewConverter;
 import io.github.cloudiator.management.user.domain.Tenant;
 import io.github.cloudiator.persistance.TenantDomainRepository;
-import io.github.cloudiator.persistance.UserDomainRepository;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import org.cloudiator.messages.General.Error;
@@ -20,7 +16,7 @@ import org.cloudiator.messaging.MessageInterface;
 public class CreateTenantListener implements Runnable {
 
   private final MessageInterface messagingInterface;
-  private final TenantConverter tenantConverter = new TenantConverter();
+  private final TenantConverter tenantConverter = TenantConverter.INSTANCE;
   private final TenantDomainRepository tenantDomainRepository;
   private final UnitOfWork unitOfWork;
   private final Provider<EntityManager> entityManager;

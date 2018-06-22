@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
+@Deprecated
 public class AuthService {
 
   private HashMap<String, Entry<User, Token>> tokenTable;
@@ -64,22 +65,22 @@ public class AuthService {
 
       }
       userfortest = this.userDomainRepository.findUserByMail("testuser");
-      System.out.println("TestUser: " + "\nEmail: " + userfortest.getEmail());
+      System.out.println("TestUser: " + "\nEmail: " + userfortest.email());
 
       if (Password.getInstance().check(new String("passwordfortestuser").toCharArray(),
-          userfortest.getPassword().toCharArray(),
-          Base64.getDecoder().decode(userfortest.getSalt()))) {
+          userfortest.password().toCharArray(),
+          Base64.getDecoder().decode(userfortest.salt()))) {
         System.out.println("Pw: passwordfortestuser ");
       } else {
         System.out.println("Standardpassword changed");
       }
-      System.out.println("Tenant: " + userfortest.getTenant().getName());
+      System.out.println("Tenant: " + userfortest.tenant().getName());
       final String authToken = Configuration.conf().getString("auth.token");
       Token tokenfortest = new Token(authToken, "testuser", System.currentTimeMillis(),
           System.currentTimeMillis() + ttlMillis);
       tokenTable.put(authToken, new SimpleEntry<User, Token>(userfortest, tokenfortest));
       System.out
-          .println("\nToken erzeugt:\n----- \nToken: " + tokenfortest.getStingToken() + " \nUser: "
+          .println("\nToken erzeugt:\n----- \nToken: " + tokenfortest.getStringToken() + " \nUser: "
               + tokenfortest.getOwner() + "\nIssued at: " + new Date(tokenfortest.getIssuedAt())
               + "\nExpires: " + new Date(tokenfortest.getExpires()) + "\n------");
 
@@ -98,10 +99,10 @@ public class AuthService {
 
   public Entry<User, Token> getToken(Token contentToken) {
     //not existing
-    if (!tokenTable.containsKey(contentToken.getStingToken())) {
+    if (!tokenTable.containsKey(contentToken.getStringToken())) {
       return new SimpleEntry<User, Token>(null, contentToken);
     }
-    Entry<User, Token> tableEntry = tokenTable.get(contentToken.getStingToken());
+    Entry<User, Token> tableEntry = tokenTable.get(contentToken.getStringToken());
 
     return tableEntry;
 
@@ -116,7 +117,7 @@ public class AuthService {
       stringToken = Base64.getEncoder()
           .encodeToString(Password.getInstance().generateToken().getBytes());
     } while (tokenTable.containsKey(stringToken));
-    Token token = new Token(stringToken, user.getEmail(), issued, expired);
+    Token token = new Token(stringToken, user.email(), issued, expired);
     tokenTable.put(stringToken, new SimpleEntry<>(user, token));
 
     return token;

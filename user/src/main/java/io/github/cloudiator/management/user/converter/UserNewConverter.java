@@ -6,11 +6,7 @@ import org.cloudiator.messages.entities.UserEntities;
 
 public class UserNewConverter implements TwoWayConverter<UserNew, UserEntities.UserNew> {
 
-  private final TenantConverter tenantConverter;
-
-  public UserNewConverter() {
-    this.tenantConverter = new TenantConverter();
-  }
+  private final TenantConverter tenantConverter = TenantConverter.INSTANCE;
 
   @Override
   public UserNew applyBack(UserEntities.UserNew protoUserNew) {

@@ -1,45 +1,53 @@
 package io.github.cloudiator.management.user.messaging;
 
-import com.google.inject.Provider;
-import com.google.inject.persist.UnitOfWork;
-import de.uniulm.omi.cloudiator.util.configuration.Configuration;
+import com.google.inject.persist.Transactional;
 import io.github.cloudiator.management.user.converter.TokenConverter;
 import io.github.cloudiator.management.user.converter.UserConverter;
-import io.github.cloudiator.management.user.domain.AuthService;
+import io.github.cloudiator.management.user.domain.AuthenticationService;
 import io.github.cloudiator.management.user.domain.Token;
 import io.github.cloudiator.management.user.domain.User;
-import java.util.Map.Entry;
+import java.util.Optional;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import org.cloudiator.messages.General.Error;
 import org.cloudiator.messages.entities.User.AuthRequest;
 import org.cloudiator.messages.entities.User.AuthResponse;
-import org.cloudiator.messages.entities.UserEntities;
-
-import org.cloudiator.messages.entities.UserEntities.Tenant;
 import org.cloudiator.messaging.MessageCallback;
 import org.cloudiator.messaging.MessageInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AuthListener implements Runnable {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(AuthListener.class);
   private final MessageInterface messagingInterface;
-  private final UnitOfWork unitOfWork;
-  private final Provider<EntityManager> entityManager;
-  private final AuthService authService;
-  private final TokenConverter tokenConverter;
-  private final UserConverter userConverter;
+  private final AuthenticationService authenticationService;
+  private static final TokenConverter TOKEN_CONVERTER = TokenConverter.INSTANCE;
+  private static final UserConverter USER_CONVERTER = UserConverter.INSTANCE;
 
   @Inject
   public AuthListener(MessageInterface messagingInterface,
-      UnitOfWork unitOfWork, Provider<EntityManager> entityManager, AuthService authService) {
+      AuthenticationService authenticationService) {
     this.messagingInterface = messagingInterface;
-    this.unitOfWork = unitOfWork;
-    this.entityManager = entityManager;
-    this.authService = authService;
-    this.tokenConverter = new TokenConverter();
-    this.userConverter = new UserConverter();
+    this.authenticationService = authenticationService;
   }
 
+  @Transactional
+  private Optional<User> getUser(Token token) {
+    return authenticationService.validateToken(token);
+  }
+
+  private void replyUnauthorized(String originId) {
+    messagingInterface.reply(AuthResponse.class, originId,
+        Error.newBuilder().setCode(401).setMessage("Unauthorized").build());
+  }
+
+  private void replyAuthorized(String originId, User user) {
+
+    AuthResponse.Builder response = AuthResponse.newBuilder();
+    response.setUser(USER_CONVERTER.apply(user));
+    messagingInterface.reply(originId, response.build());
+
+  }
 
   @Override
   public void run() {
@@ -48,48 +56,28 @@ public class AuthListener implements Runnable {
         new MessageCallback<AuthRequest>() {
           @Override
           public void accept(String id, AuthRequest content) {
-            unitOfWork.begin();
-            entityManager.get().getTransaction().begin();
 
-            System.out.println("#### RECEIVED MESSAGE #### " + content.toString());
-            AuthResponse.Builder response = AuthResponse.newBuilder();
-            //convert to domain object
-            Token contentToken = tokenConverter.applyBack(content.getToken());
+            try {
 
-            //get from TokenTable
-            Entry<User, Token> tableEntry = authService.getToken(contentToken);
-            // Token not in Table
-            if (tableEntry.getKey() == null) {
-              /* Error return ...must be better
-              messagingInterface.reply(AuthResponse.class, id,
-                  Error.newBuilder().setMessage("invalid Token: ").build());
-              */
-              UserEntities.User invalidUser = UserEntities.User.newBuilder().setEmail("notauser")
-                  .clearTenant().build();
-              response.setUser(invalidUser);
-
-            } else {
-              //check Token:
-              Long now = System.currentTimeMillis();
-              // Token is expired
-              if (!Configuration.conf().getString("auth.mode").matches("testmode")) {
-                if (tableEntry.getValue().getExpires() <= now) {
-                  //error
-                  messagingInterface.reply(AuthResponse.class, id,
-                      Error.newBuilder().setMessage("Token expired").build());
-                  entityManager.get().getTransaction().rollback();
-                  unitOfWork.end();
-                  return;
-                }
+              if (!content.hasToken()) {
+                replyUnauthorized(id);
+                return;
               }
-              //create reply
-              UserEntities.User feedback = userConverter.apply(tableEntry.getKey());
-              response.setUser(feedback);
-              //success
+
+              final Optional<User> optionalUser = getUser(
+                  TOKEN_CONVERTER.applyBack(content.getToken()));
+              if (!optionalUser.isPresent()) {
+                replyUnauthorized(id);
+                return;
+              }
+
+              replyAuthorized(id, optionalUser.get());
+
+            } catch (Exception e) {
+              LOGGER
+                  .error("Error occurred during authorization. Reporting user as unauthorized.", e);
+              replyUnauthorized(id);
             }
-            messagingInterface.reply(id, response.build());
-            entityManager.get().getTransaction().commit();
-            unitOfWork.end();
           }
         }
     );

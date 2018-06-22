@@ -24,7 +24,7 @@ public class TenantQueryListener implements Runnable {
   private final Provider<EntityManager> entityManager;
 
   private AuthService authService;
-  private final TenantConverter tenantConverter;
+  private final TenantConverter tenantConverter = TenantConverter.INSTANCE;
 
 
   @Inject
@@ -36,7 +36,6 @@ public class TenantQueryListener implements Runnable {
     this.unitOfWork = unitOfWork;
     this.entityManager = entityManager;
     this.authService = authService;
-    this.tenantConverter = new TenantConverter();
 
   }
 
