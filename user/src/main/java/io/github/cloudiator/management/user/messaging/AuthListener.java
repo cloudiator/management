@@ -72,7 +72,7 @@ public class AuthListener implements Runnable {
               //check Token:
               Long now = System.currentTimeMillis();
               // Token is expired
-              if (Configuration.conf().getString("auth.mode").matches("testmode")) {
+              if (!Configuration.conf().getString("auth.mode").matches("testmode")) {
                 if (tableEntry.getValue().getExpires() <= now) {
                   //error
                   messagingInterface.reply(AuthResponse.class, id,
