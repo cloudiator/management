@@ -44,9 +44,15 @@ public class SingleUserModeAuthenticationService implements AuthenticationServic
   }
 
   @Override
-  public void createUser(UserNew newUser) {
+  public User createUser(UserNew newUser) {
     throw new UnsupportedOperationException(
         String.format("%s does not support creating users", this));
+  }
+
+  @Override
+  public Tenant createTenant(String name) {
+    throw new UnsupportedOperationException(
+        String.format("%s does not support creating tenants", this));
   }
 
   @Override

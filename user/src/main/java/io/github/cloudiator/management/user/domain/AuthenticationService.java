@@ -12,7 +12,9 @@ public interface AuthenticationService {
 
   Optional<Tenant> getTenant(String name);
 
-  void createUser(UserNew newUser);
+  User createUser(UserNew newUser);
+
+  Tenant createTenant(String name);
 
   Iterable<User> retrieveUsers();
 

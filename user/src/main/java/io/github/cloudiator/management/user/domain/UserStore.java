@@ -10,6 +10,8 @@ public interface UserStore {
 
   void storeUser(User user);
 
+  void storeTenant(Tenant tenant);
+
   Iterable<User> retrieveUsers();
 
   Iterable<Tenant> retrieveTenants();

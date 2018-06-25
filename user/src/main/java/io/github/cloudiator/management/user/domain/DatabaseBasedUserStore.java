@@ -32,6 +32,16 @@ public class DatabaseBasedUserStore implements UserStore {
   }
 
   @Override
+  public void storeUser(User user) {
+    userDomainRepository.addUser(user);
+  }
+
+  @Override
+  public void storeTenant(Tenant tenant) {
+    tenantDomainRepository.addTenant(tenant);
+  }
+
+  @Override
   public Iterable<User> retrieveUsers() {
     //todo implement
     throw new UnsupportedOperationException("Not yet implemented");

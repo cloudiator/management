@@ -61,7 +61,7 @@ public class MultiUserModeAuthenticationService implements AuthenticationService
   }
 
   @Override
-  public void createUser(UserNew newUser) {
+  public User createUser(UserNew newUser) {
 
     byte[] salt = Password.getInstance().generateSalt();
     String encodedSalt = Base64.getEncoder().encodeToString(salt);
@@ -70,6 +70,14 @@ public class MultiUserModeAuthenticationService implements AuthenticationService
 
     userStore.storeUser(new User(newUser.getEmail(), hashed, encodedSalt, newUser.getTenant()));
 
+    return null;
+  }
+
+  @Override
+  public Tenant createTenant(String name) {
+    final Tenant tenant = new Tenant(name);
+    userStore.storeTenant(tenant);
+    return tenant;
   }
 
   @Override
