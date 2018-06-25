@@ -1,6 +1,7 @@
 package io.github.cloudiator.management.user.domain;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 import com.google.inject.Inject;
 import de.uniulm.omi.cloudiator.util.Password;
@@ -40,14 +41,22 @@ public class MultiUserModeAuthenticationService implements AuthenticationService
   }
 
   @Override
-  public Optional<User> validateToken(Token token) {
+  public Optional<User> validateToken(String token) {
 
-    final Optional<Token> retrievedToken = tokenStore.retrieveToken(token.getStringToken());
+    final Optional<Token> retrievedToken = tokenStore.retrieveToken(token);
     if (!retrievedToken.isPresent()) {
       return Optional.empty();
     }
 
-    return userStore.getUser(token.getOwner());
+    checkState(retrievedToken.get().getIssuedAt() <= System.currentTimeMillis(),
+        "Token was created in the future.");
+
+    //validate if token is still valid
+    if (System.currentTimeMillis() > retrievedToken.get().getExpires()) {
+      return Optional.empty();
+    }
+
+    return userStore.getUser(retrievedToken.get().getOwner());
   }
 
   @Override

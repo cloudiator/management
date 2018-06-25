@@ -1,5 +1,6 @@
 package io.github.cloudiator.management.user.messaging;
 
+import com.google.common.base.Strings;
 import com.google.inject.persist.Transactional;
 import io.github.cloudiator.management.user.converter.TokenConverter;
 import io.github.cloudiator.management.user.converter.UserConverter;
@@ -32,8 +33,8 @@ public class AuthListener implements Runnable {
   }
 
   @Transactional
-  private Optional<User> getUser(Token token) {
-    return authenticationService.validateToken(token);
+  private Optional<User> getAuthenticatedUser(String handedToken) {
+    return authenticationService.validateToken(handedToken);
   }
 
   private void replyUnauthorized(String originId) {
@@ -59,13 +60,12 @@ public class AuthListener implements Runnable {
 
             try {
 
-              if (!content.hasToken()) {
+              if (Strings.isNullOrEmpty(content.getHandedToken())) {
                 replyUnauthorized(id);
                 return;
               }
 
-              final Optional<User> optionalUser = getUser(
-                  TOKEN_CONVERTER.applyBack(content.getToken()));
+              final Optional<User> optionalUser = getAuthenticatedUser(content.getHandedToken());
               if (!optionalUser.isPresent()) {
                 replyUnauthorized(id);
                 return;

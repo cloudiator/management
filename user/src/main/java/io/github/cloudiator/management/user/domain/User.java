@@ -34,10 +34,10 @@ public class User {
     this.tenant = tenant;
   }
 
-  public boolean validatePassword(final String password) {
-    final char[] passwordInChar = password.toCharArray();
+  public boolean validatePassword(final String plainTextToCheckAgainst) {
+    final char[] plainTextToCheckAgainstInChar = plainTextToCheckAgainst.toCharArray();
 
-    return PASSWORD_UTIL.check(passwordInChar, passwordInChar, saltInByte());
+    return PASSWORD_UTIL.check(plainTextToCheckAgainstInChar, this.passwordInChar(), saltInByte());
   }
 
   public String email() {

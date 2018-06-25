@@ -18,9 +18,9 @@ public class SingleUserModeAuthenticationService implements AuthenticationServic
   }
 
   @Override
-  public Optional<User> validateToken(Token token) {
+  public Optional<User> validateToken(String token) {
 
-    if (STATIC_TOKEN.getStringToken().equals(token.getStringToken())) {
+    if (STATIC_TOKEN.getStringToken().equals(token)) {
       return Optional.of(SINGLE_USER);
     }
 

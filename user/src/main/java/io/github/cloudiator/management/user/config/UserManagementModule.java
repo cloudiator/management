@@ -7,11 +7,14 @@ import com.google.inject.name.Names;
 import io.github.cloudiator.management.user.Init;
 import io.github.cloudiator.management.user.domain.AuthenticationService;
 import io.github.cloudiator.management.user.domain.CacheBasedTokenStore;
+import io.github.cloudiator.management.user.domain.CreateAdminUserAndTenant;
+import io.github.cloudiator.management.user.domain.DatabaseBasedUserStore;
 import io.github.cloudiator.management.user.domain.MultiUserModeAuthenticationService;
 import io.github.cloudiator.management.user.domain.SingleUserModeAuthenticationService;
 import io.github.cloudiator.management.user.domain.TokenGenerator;
 import io.github.cloudiator.management.user.domain.TokenGeneratorImpl;
 import io.github.cloudiator.management.user.domain.TokenStore;
+import io.github.cloudiator.management.user.domain.UserStore;
 
 public class UserManagementModule extends AbstractModule {
 
@@ -54,6 +57,8 @@ public class UserManagementModule extends AbstractModule {
     protected void configure() {
       bind(AuthenticationService.class).to(MultiUserModeAuthenticationService.class);
       bind(TokenStore.class).to(CacheBasedTokenStore.class);
+      bind(UserStore.class).to(DatabaseBasedUserStore.class);
+      bind(CreateAdminUserAndTenant.class).asEagerSingleton();
     }
   }
 

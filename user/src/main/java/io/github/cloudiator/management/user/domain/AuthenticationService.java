@@ -6,7 +6,7 @@ public interface AuthenticationService {
 
   Optional<Token> authenticateUser(String email, String password);
 
-  Optional<User> validateToken(Token token);
+  Optional<User> validateToken(String token);
 
   Optional<User> getUser(String email);
 
