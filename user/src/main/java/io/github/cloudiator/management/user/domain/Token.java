@@ -18,7 +18,7 @@ public class Token {
     this.owner = owner;
   }
 
-  public String getStingToken() {
+  public String getStringToken() {
     return token;
   }
 

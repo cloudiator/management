@@ -3,16 +3,15 @@ package io.github.cloudiator.management.user;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uniulm.omi.cloudiator.util.configuration.Configuration;
+import io.github.cloudiator.management.user.config.AuthContext;
 import io.github.cloudiator.management.user.config.JpaModule;
 import io.github.cloudiator.management.user.config.UserManagementModule;
-import io.github.cloudiator.management.user.domain.AuthService;
-import io.github.cloudiator.management.user.messaging.TenantQueryListener;
-import io.github.cloudiator.persistance.UserDomainRepository;
-import io.github.cloudiator.util.JpaContext;
 import io.github.cloudiator.management.user.messaging.AuthListener;
 import io.github.cloudiator.management.user.messaging.CreateTenantListener;
 import io.github.cloudiator.management.user.messaging.CreateUserListener;
 import io.github.cloudiator.management.user.messaging.LoginListener;
+import io.github.cloudiator.management.user.messaging.TenantQueryListener;
+import io.github.cloudiator.util.JpaContext;
 import org.cloudiator.messaging.kafka.KafkaContext;
 import org.cloudiator.messaging.kafka.KafkaMessagingModule;
 
@@ -20,14 +19,14 @@ public class UserManagementAgent {
 
 
   private final static Injector injector = Guice
-      .createInjector(new UserManagementModule(), new KafkaMessagingModule(
+      .createInjector(new UserManagementModule(new AuthContext(Configuration.conf())),
+          new KafkaMessagingModule(
               new KafkaContext(Configuration.conf())),
           new JpaModule("defaultPersistenceUnit", new JpaContext(
               Configuration.conf())));
 
 
   public static void main(String[] args) {
-
 
     final CreateUserListener userListener = injector.getInstance(CreateUserListener.class);
     userListener.run();
@@ -42,7 +41,6 @@ public class UserManagementAgent {
 
 
   }
-
 
 
 }

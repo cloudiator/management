@@ -7,8 +7,7 @@ import com.google.inject.Inject;
 import de.uniulm.omi.cloudiator.util.Password;
 import io.github.cloudiator.management.user.domain.Tenant;
 import io.github.cloudiator.management.user.domain.User;
-import io.github.cloudiator.management.user.domain.UserNew;
-import java.util.Optional;
+import javax.annotation.Nullable;
 
 public class UserDomainRepository {
 
@@ -24,29 +23,32 @@ public class UserDomainRepository {
     passwordUtil = Password.getInstance();
   }
 
+  @Nullable
   public User findUserByMail(String mail) {
-    checkState(exists(mail), "Email does not exist. " + mail);
-    UserModel databaseUser = userModelRepository.findUserByMail(mail).get();
+
+    UserModel databaseUser = userModelRepository.findUserByMail(mail).orElse(null);
+
+    if (databaseUser == null) {
+      return null;
+    }
     Tenant userTenant = new Tenant(databaseUser.getTenant().getName());
-    User dbBack = new User(databaseUser.getMail(), databaseUser.getPassword(),
+    return new User(databaseUser.getMail(), databaseUser.getPassword(),
         databaseUser.getSalt(), userTenant);
-    //System.out.println("got it: " + dbBack);
-    return dbBack;
   }
 
 
   public void addUser(User user) {
     checkNotNull(user, "user is null");
-    checkState(!exists(user.getEmail()), "mail already exists.");
+    checkState(!exists(user.email()), "mail already exists.");
     TenantModel userTenant;
-    if (tenantModelRepository.findTenantByName(user.getTenant().getName()).isPresent()) {
-      userTenant = tenantModelRepository.findTenantByName(user.getTenant().getName())
+    if (tenantModelRepository.findTenantByName(user.tenant().getName()).isPresent()) {
+      userTenant = tenantModelRepository.findTenantByName(user.tenant().getName())
           .get();
     } else {
-      userTenant = new TenantModel(user.getTenant().getName());
+      userTenant = new TenantModel(user.tenant().getName());
       tenantModelRepository.save(userTenant);
     }
-    UserModel userModel = new UserModel(user.getEmail(), user.getSalt(), user.getPassword(),
+    UserModel userModel = new UserModel(user.email(), user.salt(), user.password(),
         userTenant);
 
     userModelRepository.save(userModel);
@@ -63,8 +65,8 @@ public class UserDomainRepository {
 
   public void deleteUser(User user) {
     checkNotNull(user, "user is null");
-    checkState(exists(user.getEmail()), "user does not exists.");
-    UserModel candidate = userModelRepository.findUserByMail(user.getEmail()).get();
+    checkState(exists(user.email()), "user does not exists.");
+    UserModel candidate = userModelRepository.findUserByMail(user.email()).get();
     userModelRepository.delete(candidate);
 
   }

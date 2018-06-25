@@ -1,45 +1,39 @@
 package io.github.cloudiator.management.user.messaging;
 
-import com.google.inject.Provider;
-import com.google.inject.persist.UnitOfWork;
-import de.uniulm.omi.cloudiator.util.Password;
+import com.google.inject.persist.Transactional;
 import io.github.cloudiator.management.user.converter.UserConverter;
 import io.github.cloudiator.management.user.converter.UserNewConverter;
+import io.github.cloudiator.management.user.domain.AuthenticationService;
 import io.github.cloudiator.management.user.domain.User;
 import io.github.cloudiator.management.user.domain.UserNew;
-import io.github.cloudiator.persistance.TenantDomainRepository;
-import io.github.cloudiator.persistance.UserDomainRepository;
-import java.util.Base64;
+import java.util.Optional;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import org.cloudiator.messages.General.Error;
 import org.cloudiator.messages.entities.User.CreateUserRequest;
 import org.cloudiator.messages.entities.User.CreateUserResponse;
-import org.cloudiator.messages.entities.User.CreateUserResponse.Builder;
 import org.cloudiator.messaging.MessageCallback;
 import org.cloudiator.messaging.MessageInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CreateUserListener implements Runnable {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(CreateUserListener.class);
   private final MessageInterface messagingInterface;
   private final UserNewConverter userNewConverter = new UserNewConverter();
-  private final UserConverter userConverter = new UserConverter();
-  private final UserDomainRepository userDomainRepository;
-  private final TenantDomainRepository tenantDomainRepository;
-  private final UnitOfWork unitOfWork;
-  private final Provider<EntityManager> entityManager;
-
+  private final UserConverter userConverter = UserConverter.INSTANCE;
+  private final AuthenticationService authenticationService;
 
   @Inject
   public CreateUserListener(MessageInterface messagingInterface,
-      UserDomainRepository userDomainRepository, TenantDomainRepository tenantDomainRepository,
-      UnitOfWork unitOfWork,
-      Provider<EntityManager> entityManager) {
+      AuthenticationService authenticationService) {
     this.messagingInterface = messagingInterface;
-    this.userDomainRepository = userDomainRepository;
-    this.tenantDomainRepository = tenantDomainRepository;
-    this.unitOfWork = unitOfWork;
-    this.entityManager = entityManager;
+    this.authenticationService = authenticationService;
+  }
+
+  @Transactional
+  private User createUser(UserNew userNew) {
+    return authenticationService.createUser(userNew);
   }
 
   @Override
@@ -50,58 +44,31 @@ public class CreateUserListener implements Runnable {
 
           @Override
           public void accept(String id, CreateUserRequest content) {
-            //start the transaction
-            unitOfWork.begin();
-            entityManager.get().getTransaction().begin();
 
-            System.out.println("#### RECEIVED MESSAGE #### " + content.toString());
-
-            Builder responseBuilder = CreateUserResponse.newBuilder();
-            UserNew requestedUser = userNewConverter.applyBack(content.getNewUser());
-            /*--- not here anymore
-            //ERROR: PasswordMismatch
-            if (!requestedUser.getPasswordRepeat().matches(requestedUser.getPassword())) {
-              messagingInterface
-                  .reply(CreateUserResponse.class, id,
-                      Error.newBuilder().setCode(400).setMessage("PasswordRepeat does not match.")
-                          .build());
-              entityManager.get().getTransaction().rollback();
-              return;
-            }
-            */
             try {
+              UserNew requestedUser = userNewConverter.applyBack(content.getNewUser());
 
-              //setUp new User
-              byte[] salt = Password.getInstance().generateSalt();
-              String encodedSalt = Base64.getEncoder().encodeToString(salt);
-              String hashed =new String(Password.getInstance().hash(requestedUser.getPassword().toCharArray(), salt));
+              final Optional<User> existingUser = authenticationService
+                  .getUser(content.getNewUser().getEmail());
 
-              User domainUser = new User(requestedUser.getEmail(), hashed,
-                  encodedSalt, requestedUser.getTenant());
+              if (existingUser.isPresent()) {
+                messagingInterface.reply(CreateUserResponse.class, id,
+                    Error.newBuilder().setCode(400).setMessage("User already exists").build());
+                return;
+              }
 
-              //store to database
-              userDomainRepository.addUser(domainUser);
+              final User createdUser = createUser(requestedUser);
 
-              //reply
-              responseBuilder.setUser(userConverter.apply(domainUser));
-              CreateUserResponse response = responseBuilder.build();
+              final CreateUserResponse responseMessage = CreateUserResponse.newBuilder()
+                  .setUser(userConverter.apply(createdUser)).build();
 
-              //success
-              messagingInterface.reply(id, response);
-              entityManager.get().getTransaction().commit();
-            } catch (IllegalStateException ill) {
+              messagingInterface.reply(id, responseMessage);
 
+            } catch (Exception e) {
+              LOGGER.error("Error while creating user.", e);
               messagingInterface.reply(CreateUserResponse.class, id,
-                  Error.newBuilder().setCode(400).setMessage(ill.getMessage()).build());
-              entityManager.get().getTransaction().rollback();
-            } catch (NullPointerException npe) {
-
-              messagingInterface.reply(CreateUserResponse.class, id,
-                  Error.newBuilder().setCode(400).setMessage(npe.getMessage()).build());
-              entityManager.get().getTransaction().rollback();
-            } finally {
-
-              unitOfWork.end();
+                  Error.newBuilder().setCode(400)
+                      .setMessage("Error while creating user: " + e.getMessage()).build());
             }
           }
         }
