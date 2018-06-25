@@ -3,6 +3,8 @@ package io.github.cloudiator.management.user.domain;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.inject.Inject;
+import de.uniulm.omi.cloudiator.util.Password;
+import java.util.Base64;
 import java.util.Optional;
 
 public class MultiUserModeAuthenticationService implements AuthenticationService {
@@ -46,5 +48,37 @@ public class MultiUserModeAuthenticationService implements AuthenticationService
     }
 
     return userStore.getUser(token.getOwner());
+  }
+
+  @Override
+  public Optional<User> getUser(String email) {
+    return userStore.getUser(email);
+  }
+
+  @Override
+  public Optional<Tenant> getTenant(String name) {
+    return userStore.getTenant(name);
+  }
+
+  @Override
+  public void createUser(UserNew newUser) {
+
+    byte[] salt = Password.getInstance().generateSalt();
+    String encodedSalt = Base64.getEncoder().encodeToString(salt);
+    String hashed = new String(
+        Password.getInstance().hash(newUser.getPassword().toCharArray(), salt));
+
+    userStore.storeUser(new User(newUser.getEmail(), hashed, encodedSalt, newUser.getTenant()));
+
+  }
+
+  @Override
+  public Iterable<User> retrieveUsers() {
+    return userStore.retrieveUsers();
+  }
+
+  @Override
+  public Iterable<Tenant> retrieveTenants() {
+    return userStore.retrieveTenants();
   }
 }

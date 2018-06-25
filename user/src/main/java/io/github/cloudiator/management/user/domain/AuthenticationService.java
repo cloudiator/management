@@ -8,5 +8,15 @@ public interface AuthenticationService {
 
   Optional<User> validateToken(Token token);
 
+  Optional<User> getUser(String email);
+
+  Optional<Tenant> getTenant(String name);
+
+  void createUser(UserNew newUser);
+
+  Iterable<User> retrieveUsers();
+
+  Iterable<Tenant> retrieveTenants();
+
 
 }

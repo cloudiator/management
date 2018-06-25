@@ -7,6 +7,8 @@ import com.google.inject.Inject;
 import io.github.cloudiator.management.user.domain.Tenant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import javax.annotation.Nullable;
 
 public class TenantDomainRepository {
 
@@ -18,11 +20,10 @@ public class TenantDomainRepository {
     this.tenantModelRepository = tenantModelRepository;
   }
 
+  @Nullable
   public Tenant findTenantbyName(String name) {
-    checkState(exists(name), "Tenant does not exist.");
-    TenantModel dbBack = tenantModelRepository.findTenantByName(name).get();
-    Tenant result = new Tenant(dbBack.getName());
-    return result;
+    Optional<TenantModel> dbBack = tenantModelRepository.findTenantByName(name);
+    return dbBack.map(tenantModel -> new Tenant(tenantModel.getName())).orElse(null);
   }
 
   public void addTenant(Tenant newTenant) {

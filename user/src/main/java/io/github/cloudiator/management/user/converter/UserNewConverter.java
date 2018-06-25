@@ -6,17 +6,13 @@ import org.cloudiator.messages.entities.UserEntities;
 
 public class UserNewConverter implements TwoWayConverter<UserNew, UserEntities.UserNew> {
 
-  private final TenantConverter tenantConverter = TenantConverter.INSTANCE;
+  private static final TenantConverter TENANT_CONVERTER = TenantConverter.INSTANCE;
 
   @Override
   public UserNew applyBack(UserEntities.UserNew protoUserNew) {
-    UserNew userNew = new UserNew();
-    userNew.setEmail(protoUserNew.getEmail());
-    userNew.setPassword(protoUserNew.getPassword());
-    userNew.setPasswordRepeat(protoUserNew.getPasswordRepeat());
-    userNew.setTenant(tenantConverter.applyBack(protoUserNew.getTenant()));
-
-    return userNew;
+    return new UserNew(protoUserNew.getEmail(),
+        TENANT_CONVERTER.applyBack(protoUserNew.getTenant()),
+        protoUserNew.getPassword());
   }
 
   @Override
@@ -24,8 +20,7 @@ public class UserNewConverter implements TwoWayConverter<UserNew, UserEntities.U
     UserEntities.UserNew.Builder builder = UserEntities.UserNew.newBuilder()
         .setEmail(domainUserNew.getEmail())
         .setPassword(domainUserNew.getPassword())
-        .setPasswordRepeat(domainUserNew.getPasswordRepeat())
-        .setTenant(tenantConverter.apply(domainUserNew.getTenant()));
+        .setTenant(TENANT_CONVERTER.apply(domainUserNew.getTenant()));
     return builder.build();
   }
 }
