@@ -6,6 +6,7 @@ import io.github.cloudiator.management.user.converter.UserNewConverter;
 import io.github.cloudiator.management.user.domain.AuthenticationService;
 import io.github.cloudiator.management.user.domain.User;
 import io.github.cloudiator.management.user.domain.UserNew;
+import java.util.Optional;
 import javax.inject.Inject;
 import org.cloudiator.messages.General.Error;
 import org.cloudiator.messages.entities.User.CreateUserRequest;
@@ -47,7 +48,14 @@ public class CreateUserListener implements Runnable {
             try {
               UserNew requestedUser = userNewConverter.applyBack(content.getNewUser());
 
-              //todo check if user already exists
+              final Optional<User> existingUser = authenticationService
+                  .getUser(content.getNewUser().getEmail());
+
+              if (existingUser.isPresent()) {
+                messagingInterface.reply(CreateUserResponse.class, id,
+                    Error.newBuilder().setCode(400).setMessage("User already exists").build());
+                return;
+              }
 
               final User createdUser = createUser(requestedUser);
 

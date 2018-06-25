@@ -3,6 +3,7 @@ package io.github.cloudiator.management.user.messaging;
 import io.github.cloudiator.management.user.converter.TenantConverter;
 import io.github.cloudiator.management.user.domain.AuthenticationService;
 import io.github.cloudiator.management.user.domain.Tenant;
+import java.util.Optional;
 import javax.inject.Inject;
 import org.cloudiator.messages.General.Error;
 import org.cloudiator.messages.entities.User.CreateTenantRequest;
@@ -39,6 +40,15 @@ public class CreateTenantListener implements Runnable {
           public void accept(String id, CreateTenantRequest content) {
 
             try {
+
+              final Optional<Tenant> existingTenant = authenticationService
+                  .getTenant(content.getTenant());
+
+              if (existingTenant.isPresent()) {
+                messagingInterface.reply(CreateTenantResponse.class, id,
+                    Error.newBuilder().setCode(400).setMessage("Tenant already exists").build());
+                return;
+              }
 
               final Tenant tenant = createTenant(content.getTenant());
 
