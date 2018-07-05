@@ -9,6 +9,7 @@ after_success:
 - ci/deploy_snapshot.sh
 - ci/publish-javadoc-to-gh-pages.sh
 - user/ci/publish_docker.sh
+- encryption/ci/publish_docker.sh
 branches:
   except:
   - gh-pages
