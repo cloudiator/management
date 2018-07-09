@@ -5,21 +5,26 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 @Entity
 @Table(uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"key", "tenant"})
+    @UniqueConstraint(columnNames = {"secureEntryKey", "tenantId"})
 })
 public class SecureEntryModel extends Model {
 
-  @Column(nullable = false)
+  @Column(nullable = false, name = "secureEntryKey")
+  @Lob
   private String key;
   @Column(nullable = false)
+  @Lob
   private String encryptedValue;
   @ManyToOne(optional = false)
+  @JoinColumn(name = "tenantId")
   private TenantModel tenant;
 
   /**

@@ -4,7 +4,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 
+@Entity
 public class TenantModel extends Model {
 
   @Column(nullable = false, unique = true)
