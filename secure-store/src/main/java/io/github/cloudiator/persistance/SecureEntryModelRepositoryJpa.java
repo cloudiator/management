@@ -28,7 +28,7 @@ public class SecureEntryModelRepositoryJpa extends
     checkNotNull(userId, "userId is null");
     checkNotNull(key, "key is null");
     String queryString = String.format(
-        "select cloud from %s entry inner join entry.tenant tenant where tenant.name = :name and entry.key = :key",
+        "select entry from %s entry inner join entry.tenant tenant where tenant.name = :name and entry.key = :key",
         type.getName());
     Query query = em().createQuery(queryString).setParameter("name", userId)
         .setParameter("key", key);
