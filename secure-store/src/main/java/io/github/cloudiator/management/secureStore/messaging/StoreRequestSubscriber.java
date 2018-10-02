@@ -2,7 +2,7 @@ package io.github.cloudiator.management.secureStore.messaging;
 
 import com.google.inject.Inject;
 import io.github.cloudiator.persistance.SecureEntryStore;
-import javax.transaction.Transactional;
+import com.google.inject.persist.Transactional;
 import org.cloudiator.messaging.services.SecureStoreService;
 
 public class StoreRequestSubscriber implements Runnable {
