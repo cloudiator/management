@@ -3,7 +3,7 @@
 # build multiple times
 # see https://github.com/GoogleContainerTools/jib/issues/802
 
-echo "Publishing secureStore-agent to docker"
+echo "Publishing securestore-agent to docker"
 
 cd secure-store
 
