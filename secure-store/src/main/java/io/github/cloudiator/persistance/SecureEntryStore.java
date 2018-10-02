@@ -28,6 +28,10 @@ public class SecureEntryStore {
 
   public String store(String key, String value, String userId) {
 
+    checkNotNull(key, "key is null");
+    checkNotNull(value, "value is null");
+    checkNotNull(userId, "userId is null");
+
     SecureEntryModel existing = secureEntryModelRepository.getEntry(key, userId);
 
     TenantModel tenantModel = tenantModelRepository.createOrGet(userId);
@@ -54,6 +58,10 @@ public class SecureEntryStore {
   }
 
   public void delete(String key, String userId) {
+
+    checkNotNull(key, "key is null");
+    checkNotNull(userId, "userId is null");
+
     SecureEntryModel entry = secureEntryModelRepository.getEntry(key, userId);
     checkNotNull(entry, String.format("Entry with key %s does not exist.", key));
     secureEntryModelRepository.delete(entry);
@@ -61,6 +69,10 @@ public class SecureEntryStore {
 
 
   public Optional<String> retrieve(String key, String userId) {
+
+    checkNotNull(key, "key is null");
+    checkNotNull(userId, "userId is null");
+
     final SecureEntryModel entry = secureEntryModelRepository.getEntry(key, userId);
     if (entry == null) {
       return Optional.empty();
