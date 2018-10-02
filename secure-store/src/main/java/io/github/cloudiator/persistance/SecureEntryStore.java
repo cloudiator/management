@@ -26,7 +26,7 @@ public class SecureEntryStore {
     this.tenantModelRepository = tenantModelRepository;
   }
 
-  public void store(String key, String value, String userId) {
+  public String store(String key, String value, String userId) {
 
     SecureEntryModel existing = secureEntryModelRepository.getEntry(key, userId);
 
@@ -45,6 +45,8 @@ public class SecureEntryStore {
       }
 
       secureEntryModelRepository.save(existing);
+
+      return encryptionResponse.getCiphertext();
 
     } catch (ResponseException e) {
       throw new IllegalStateException("Could not encrypt value.", e);

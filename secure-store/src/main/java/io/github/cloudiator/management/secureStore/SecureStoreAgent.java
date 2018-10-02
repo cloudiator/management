@@ -4,6 +4,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.uniulm.omi.cloudiator.util.configuration.Configuration;
 import io.github.cloudiator.management.secureStore.config.SecureStoreModule;
+import io.github.cloudiator.management.secureStore.messaging.DeleteRequestSubscriber;
 import io.github.cloudiator.management.secureStore.messaging.RetrieveRequestSubscriber;
 import io.github.cloudiator.management.secureStore.messaging.StoreRequestSubscriber;
 import io.github.cloudiator.persistance.JpaModule;
@@ -23,6 +24,7 @@ public class SecureStoreAgent {
   public static void main(String[] args) {
     INJECTOR.getInstance(RetrieveRequestSubscriber.class).run();
     INJECTOR.getInstance(StoreRequestSubscriber.class).run();
+    INJECTOR.getInstance(DeleteRequestSubscriber.class).run();
   }
 
 }
