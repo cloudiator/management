@@ -2,17 +2,16 @@ package io.github.cloudiator.management.secureStore.messaging;
 
 import com.google.inject.Inject;
 import io.github.cloudiator.persistance.SecureEntryStore;
-import java.util.Optional;
 import javax.transaction.Transactional;
 import org.cloudiator.messaging.services.SecureStoreService;
 
-public class RetrieveRequestSubscriber implements Runnable {
+public class DeleteRequestSubscriber implements Runnable {
 
   private final SecureStoreService secureStoreService;
   private final SecureEntryStore secureEntryStore;
 
   @Inject
-  public RetrieveRequestSubscriber(
+  public DeleteRequestSubscriber(
       SecureStoreService secureStoreService,
       SecureEntryStore secureEntryStore) {
     this.secureStoreService = secureStoreService;
@@ -20,19 +19,19 @@ public class RetrieveRequestSubscriber implements Runnable {
   }
 
   @Transactional
-  protected Optional<String> retrieve(String key, String userId) {
-    return secureEntryStore.retrieve(key, userId);
+  protected void delete(String key, String userId) {
+    secureEntryStore.delete(key, userId);
   }
 
   @Override
   public void run() {
-    secureStoreService.subscribeRetrieveRequest((id, content) -> {
+    secureStoreService.subscribeDeleteRequest((id, content) -> {
 
       final String key = content.getKey();
       final String userId = content.getUserId();
 
       try {
-        final Optional<String> value = retrieve(key, userId);
+        delete(key, userId);
         //todo reply success and value
       } catch (Exception e) {
         //todo reply error

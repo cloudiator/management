@@ -11,6 +11,9 @@
 
   <artifactId>encryption</artifactId>
 
+  <properties>
+    <docker.tag>manual</docker.tag>
+  </properties>
 
   <dependencies>
     <dependency>
@@ -38,6 +41,17 @@
 
   <build>
     <plugins>
+
+      <plugin>
+        <groupId>com.google.cloud.tools</groupId>
+        <artifactId>jib-maven-plugin</artifactId>
+        <configuration>
+          <to>
+            registry.hub.docker.com/cloudiator/encryption-agent:${docker.tag}
+          </to>
+        </configuration>
+      </plugin>
+
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <configuration>
@@ -52,15 +66,6 @@
           <finalName>encryption-agent</finalName>
           <appendAssemblyId>false</appendAssemblyId>
         </configuration>
-        <executions>
-          <execution>
-            <id>make-assembly</id> <!-- this is used for inheritance merges -->
-            <phase>package</phase> <!-- bind to the packaging phase -->
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>

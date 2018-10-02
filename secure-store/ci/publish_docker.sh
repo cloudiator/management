@@ -3,9 +3,9 @@
 # build multiple times
 # see https://github.com/GoogleContainerTools/jib/issues/802
 
-echo "Publishing user-agent to docker"
+echo "Publishing secureStore-agent to docker"
 
-cd user
+cd secure-store
 
 export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo ${TRAVIS_BRANCH} ; fi`
 mvn -q -Ddocker.tag=${TAG} -Djib.to.auth.username=${DOCKER_USER} -Djib.to.auth.password=${DOCKER_PASS} jib:build

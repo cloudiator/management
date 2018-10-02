@@ -51,7 +51,7 @@ public class SecureEntryStore {
     }
   }
 
-  public void delete(String key, String value, String userId) {
+  public void delete(String key, String userId) {
     SecureEntryModel entry = secureEntryModelRepository.getEntry(key, userId);
     checkNotNull(entry, String.format("Entry with key %s does not exist.", key));
     secureEntryModelRepository.delete(entry);
