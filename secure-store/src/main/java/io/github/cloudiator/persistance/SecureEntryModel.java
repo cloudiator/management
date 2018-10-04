@@ -44,6 +44,7 @@ public class SecureEntryModel extends Model {
 
     this.key = key;
     this.encryptedValue = encryptedValue;
+    this.tenant = tenant;
   }
 
 
