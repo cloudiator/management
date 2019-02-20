@@ -5,7 +5,6 @@ import com.google.inject.persist.Transactional;
 import io.github.cloudiator.management.user.converter.TokenConverter;
 import io.github.cloudiator.management.user.converter.UserConverter;
 import io.github.cloudiator.management.user.domain.AuthenticationService;
-import io.github.cloudiator.management.user.domain.Token;
 import io.github.cloudiator.management.user.domain.User;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -58,19 +57,29 @@ public class AuthListener implements Runnable {
           @Override
           public void accept(String id, AuthRequest content) {
 
+            LOGGER.debug(
+                "Receiving new auth request for token " + content.getHandedToken() + " with id "
+                    + id);
+
             try {
 
               if (Strings.isNullOrEmpty(content.getHandedToken())) {
+                LOGGER.warn(String.format("Empty token received with request %s.", id));
                 replyUnauthorized(id);
                 return;
               }
 
               final Optional<User> optionalUser = getAuthenticatedUser(content.getHandedToken());
               if (!optionalUser.isPresent()) {
+                LOGGER.debug(String.format("Rejecting token %s received with request %s.",
+                    content.getHandedToken(), id));
                 replyUnauthorized(id);
                 return;
               }
 
+              LOGGER.debug(String.format("Token %s received with request %s is valid for user %s.",
+                  content.getHandedToken(), id,
+                  optionalUser.get()));
               replyAuthorized(id, optionalUser.get());
 
             } catch (Exception e) {

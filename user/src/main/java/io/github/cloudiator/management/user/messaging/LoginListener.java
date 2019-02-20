@@ -55,7 +55,11 @@ public class LoginListener implements Runnable {
             try {
 
               //todo: currently ignoring the tenant of login request
+
+              LOGGER.debug(String.format("Receiving login request %s", id));
+
               if (!content.hasLogin()) {
+                LOGGER.warn("Empty login received for request " + id);
                 replyUnauthorized(id);
                 return;
               }
@@ -64,6 +68,7 @@ public class LoginListener implements Runnable {
               final String password = content.getLogin().getPassword();
 
               if (Strings.isNullOrEmpty(email) || Strings.isNullOrEmpty(password)) {
+                LOGGER.warn("Empty email or password received for request " + id);
                 replyUnauthorized(id);
                 return;
               }
@@ -71,6 +76,8 @@ public class LoginListener implements Runnable {
               final Optional<Token> optionalToken = getToken(email, password);
 
               if (!optionalToken.isPresent()) {
+                LOGGER.info(String.format("Login request %s rejected. User %s is unauthorized.", id,
+                    content.getLogin().getEmail()));
                 replyUnauthorized(id);
                 return;
               }
