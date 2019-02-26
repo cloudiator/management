@@ -13,7 +13,7 @@ import org.cloudiator.messaging.MessageInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CreateTenantListener implements Runnable {
+public class CreateTenantListener implements KafkaListener {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CreateTenantListener.class);
   private final MessageInterface messagingInterface;

@@ -16,7 +16,7 @@ import org.cloudiator.messaging.MessageInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CreateUserListener implements Runnable {
+public class CreateUserListener implements KafkaListener {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CreateUserListener.class);
   private final MessageInterface messagingInterface;

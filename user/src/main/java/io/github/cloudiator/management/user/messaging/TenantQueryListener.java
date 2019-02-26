@@ -13,12 +13,11 @@ import org.cloudiator.messages.entities.User.TenantQueryResponse;
 import org.cloudiator.messaging.MessageCallback;
 import org.cloudiator.messaging.MessageInterface;
 
-public class TenantQueryListener implements Runnable {
+public class TenantQueryListener implements KafkaListener {
 
   private final MessageInterface messagingInterface;
   private final AuthenticationService authenticationService;
 
-  private AuthService authService;
   private final TenantConverter tenantConverter = TenantConverter.INSTANCE;
 
 
