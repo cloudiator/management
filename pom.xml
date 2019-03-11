@@ -45,6 +45,12 @@
   <description>Performs management tasks within the cloudiator framework.</description>
   <url>https://github.com/cloudiator</url>
 
+  <profiles>
+  <profile>
+  <id>useSonatypeRepo</id>
+  <activation>
+    <activeByDefault>true</activeByDefault>
+  </activation>
   <!-- ....to here -->
   <repositories>
     <repository>
@@ -59,6 +65,8 @@
       </snapshots>
     </repository>
   </repositories>
+  </profile>
+  </profiles>
 
   <scm>
     <connection>scm:git:https://github.com/cloudiator/management.git</connection>
