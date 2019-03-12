@@ -16,10 +16,6 @@ env_set_default() {
   echo "EnvironmentVariable $1 is not set. Defaulting to $2."
 }
 
-buildJpaUrl() {
-  export JPA_URL="jdbc:mysql://$JPA_HOST:3306/$JPA_DATABASE"
-  echo "Using $JPA_URL as jdbc connection string"
-}
 validateMandatory() {
 
   if [ -z "$JPA_USER" ]; then
@@ -30,12 +26,8 @@ validateMandatory() {
 	  env_required "JPA_PASSWORD"
   fi
 
-  if [ -z "$JPA_HOST" ]; then
-	  env_required "JPA_HOST"
-  fi
-
-  if [ -z "$JPA_DATABASE" ]; then
-	  env_required "JPA_DATABASE"
+  if [ -z "$JPA_URL" ]; then
+	  env_required "JPA_URL"
   fi
 
   if [ -z "$KAFKA_BOOTSTRAP_SERVERS" ]; then
@@ -77,7 +69,7 @@ setDefaults() {
 
 validateMandatory
 setDefaults
-buildJpaUrl
+
 
 # Run the service
 java -Djpa.url=${JPA_URL} -Djpa.user=${JPA_USER} -Djpa.password=${JPA_PASSWORD} -Djpa.dialect=${JPA_DIALECT} -Djpa.driver=${JPA_DRIVER} -Dkafka.groupId=${KAFKA_GROUP_ID} -Dkafka.responseTimeout=${KAFKA_RESPONSE_TIMEOUT} -Dkafka.bootstrapServers=${KAFKA_BOOTSTRAP_SERVERS} -Dauth.mode=${AUTH_MODE} -Dauth.token=${AUTH_TOKEN} -jar user-agent.jar
