@@ -40,7 +40,6 @@
   </dependencies>
 
   <build>
-    <finalName>encryption-agent</finalName>
     <plugins>
 
       <plugin>
@@ -67,7 +66,7 @@
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
-
+          <finalName>encryption-agent</finalName>
           <appendAssemblyId>false</appendAssemblyId>
         </configuration>
       </plugin>

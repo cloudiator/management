@@ -57,7 +57,6 @@
   </dependencies>
 
   <build>
-    <finalName>user-agent</finalName>
     <plugins>
 
       <plugin>
@@ -84,7 +83,7 @@
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
-
+          <finalName>user-agent</finalName>
           <appendAssemblyId>false</appendAssemblyId>
         </configuration>
       </plugin>
