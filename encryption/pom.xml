@@ -49,6 +49,9 @@
           <to>
             registry.hub.docker.com/cloudiator/encryption-agent:${docker.tag}
           </to>
+          <container>
+            <useCurrentTimestamp>true</useCurrentTimestamp>
+          </container>
         </configuration>
       </plugin>
 
