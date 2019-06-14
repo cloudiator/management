@@ -1,9 +1,9 @@
 package io.github.cloudiator.management.secureStore.messaging;
 
 import com.google.inject.Inject;
+import com.google.inject.persist.Transactional;
 import io.github.cloudiator.persistance.SecureEntryStore;
 import java.util.Optional;
-import javax.transaction.Transactional;
 import org.cloudiator.messaging.services.SecureStoreService;
 
 public class RetrieveRequestSubscriber implements Runnable {
@@ -19,6 +19,7 @@ public class RetrieveRequestSubscriber implements Runnable {
     this.secureEntryStore = secureEntryStore;
   }
 
+  @SuppressWarnings("WeakerAccess")
   @Transactional
   protected Optional<String> retrieve(String key, String userId) {
     return secureEntryStore.retrieve(key, userId);
