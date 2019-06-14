@@ -29,6 +29,7 @@ public class DeleteRequestSubscriber implements Runnable {
     this.messageInterface = messageInterface;
   }
 
+  @SuppressWarnings("WeakerAccess")
   @Transactional
   protected void delete(String key, String userId) {
     final Optional<String> retrieve = secureEntryStore.retrieve(key, userId);

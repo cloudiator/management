@@ -27,6 +27,7 @@ public class StoreRequestSubscriber implements Runnable {
     this.messageInterface = messageInterface;
   }
 
+  @SuppressWarnings("WeakerAccess")
   @Transactional
   protected String store(String key, String value, String userId) {
     return secureEntryStore.store(key, value, userId);

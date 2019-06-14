@@ -28,6 +28,7 @@ public class RetrieveRequestSubscriber implements Runnable {
     this.messageInterface = messageInterface;
   }
 
+  @SuppressWarnings("WeakerAccess")
   @Transactional
   protected Optional<String> retrieve(String key, String userId) {
     return secureEntryStore.retrieve(key, userId);
